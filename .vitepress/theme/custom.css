@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+.list-move {
+  transition: all 0.7s ease-in-out;
+}
