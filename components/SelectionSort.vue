@@ -45,7 +45,7 @@ async function autoPlay() {
       await sleep(700)
     }
     reset()
-    await sleep(500)
+    await sleep(700)
   }
   autoPlayCompleted.value = true
 }
