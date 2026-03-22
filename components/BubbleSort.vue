@@ -64,7 +64,7 @@ async function toggleAutoPlay() {
 
 function reset() {
   dataArray.reset()
-  forI.value = 0
+  forI.value = dataArray.items.length - 1
   forJ.value = 0
   manualPlayCompleted.value = false
 }
