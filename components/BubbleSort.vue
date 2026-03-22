@@ -11,15 +11,13 @@ const autoPlaying = ref(false)
 const autoPlayCompleted = ref(false)
 const manualPlayCompleted = ref(false)
 const dataArray = reactive(new DataArray([4, 1, 3, 1, 5, 2]))
-const forI = ref(0)
+const forI = ref(dataArray.items.length - 1)
 const forJ = ref(0)
-const forK = ref(0)
 
 
-function syncForIJK(i: number, j: number, k: number) {
+function syncForIJK(i: number, j: number) {
   forI.value = i
   forJ.value = j
-  forK.value = k
 }
 
 
@@ -27,22 +25,21 @@ async function autoPlay() {
   autoPlayCompleted.value = false
   while (autoPlaying.value) {
     const items = dataArray.items
-    const n = items.length
-    for (let i = 0; i < n - 1; i++) {
-      let k = i
-      for (let j = i + 1; j < n; j++) {
-        if (items[j].value < items[k].value) {
-          k = j
+    for (let i = items.length - 1; i > 0; i--) {
+      for (let j = 0; j < i; j++) {
+        syncForIJK(i, j)
+        items[j].selected = true
+        items[j + 1].selected = true
+        await sleep(500)
+        if (items[j].value > items[j + 1].value) {
+          ;[items[j], items[j + 1]] = [items[j + 1], items[j]]
+          await sleep(700)
         }
-        syncForIJK(i, j, k)
-        await sleep(100)
+        items[j].selected = false
+        items[j + 1].selected = false
       }
-      items[k].selected = true
+      items[i].used = true
       await sleep(500)
-      items[k].used = true
-      items[k].selected = false
-      ;[items[i], items[k]] = [items[k], items[i]]
-      await sleep(700)
     }
     reset()
     await sleep(500)
@@ -69,7 +66,6 @@ function reset() {
   dataArray.reset()
   forI.value = 0
   forJ.value = 0
-  forK.value = 0
   manualPlayCompleted.value = false
 }
 
@@ -77,25 +73,24 @@ function reset() {
 async function manualPlay() {
   disableAll.value = true
   const items = dataArray.items
-  const n = items.length
   let i = forI.value
-  let k = i
-  for (let j = i + 1; j < n; j++) {
-    if (items[j].value < items[k].value) {
-      k = j
+  for (let j = 0; j < i; j++) {
+    syncForIJK(i, j)
+    items[j].selected = true
+    items[j + 1].selected = true
+    await sleep(500)
+    if (items[j].value > items[j + 1].value) {
+      ;[items[j], items[j + 1]] = [items[j + 1], items[j]]
+      await sleep(700)
     }
-    syncForIJK(i, j, k)
-    await sleep(100)
+    items[j].selected = false
+    items[j + 1].selected = false
   }
-  items[k].selected = true
-  await sleep(700)
-  items[k].used = true
-  items[k].selected = false
-  ;[items[i], items[k]] = [items[k], items[i]]
-  await sleep(700)
-  i++
+  items[i].used = true
+  await sleep(500)
+  i--
   forI.value = i
-  if (i >= n - 1) {
+  if (i <= 0) {
     manualPlayCompleted.value = true
   }
   disableAll.value = false
@@ -124,7 +119,6 @@ async function manualPlay() {
       >
         <div>i = {{ forI }}</div>
         <div>j = {{ forJ }}</div>
-        <div>k = {{ forK }}</div>
       </div>
     </BorderCard>
     <div class="flex flex-row items-center justify-center gap-4">
